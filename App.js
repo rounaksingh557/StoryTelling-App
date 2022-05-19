@@ -3,12 +3,12 @@ import * as React from "react";
 import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { SafeAreaView, StatusBar, StyleSheet } from "react-native";
 import * as firebase from "firebase";
-import { firebaseConfig } from "./Config";
 
 // Files Import
 import LoadingScreen from "./Screens/LoadingScreen";
 import LoginScreen from "./Screens/LoginScreen";
 import DashBoardScreen from "./Screens/DashBoardScreen";
+import { firebaseConfig } from "./Config";
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
