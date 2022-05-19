@@ -1,10 +1,33 @@
 // Modules Import
 import React from "react";
-import { StyleSheet, View, Button } from "react-native";
+import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
 import * as Google from "expo-google-app-auth";
 import firebase from "firebase";
+import AppLoading from "expo-app-loading";
+import * as Font from "expo-font";
+import { RFValue } from "react-native-responsive-fontsize";
+
+let customFonts = {
+  "Bubblegum-Sans": require("../assets/fonts/BubblegumSans-Regular.ttf"),
+};
 
 export default class LoginScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      fontLoaded: false,
+    };
+  }
+
+  async _loadFontsAsync() {
+    await Font.loadAsync(customFonts);
+    this.setState({ fontLoaded: true });
+  }
+
+  componentDidMount() {
+    this._loadFontsAsync();
+  }
+
   signInWithGoogleAsync = async () => {
     try {
       const result = await Google.logInAsync({
@@ -84,21 +107,94 @@ export default class LoginScreen extends React.Component {
   };
 
   render() {
-    return (
-      <View style={styles.container}>
-        <Button
-          title="Sign In With Google"
-          onPress={() => this.signInWithGoogleAsync()}
-        ></Button>
-      </View>
-    );
+    if (!this.state.fontLoaded) {
+      return <AppLoading />;
+    } else {
+      return (
+        <View style={styles.container}>
+          <View style={styles.appTitle}>
+            <Image
+              source={require("../assets/logo.png")}
+              style={styles.appIcon}
+            ></Image>
+            <Text style={styles.appTitleText}>{`Storytelling\nApp`}</Text>
+          </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => this.signInWithGoogleAsync()}
+            >
+              <Image
+                source={require("../assets/google_icon.png")}
+                style={styles.googleIcon}
+              ></Image>
+              <Text style={styles.googleText}>Sign in with Google</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.cloudContainer}>
+            <Image
+              source={require("../assets/cloud.png")}
+              style={styles.cloudImage}
+            ></Image>
+          </View>
+        </View>
+      );
+    }
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    backgroundColor: "#15193c",
+  },
+  appTitle: {
+    flex: 0.4,
     justifyContent: "center",
+    alignItems: "center",
+  },
+  appIcon: {
+    width: RFValue(130),
+    height: RFValue(130),
+    resizeMode: "contain",
+  },
+  appTitleText: {
+    color: "white",
+    textAlign: "center",
+    fontSize: RFValue(40),
+    fontFamily: "Bubblegum-Sans",
+  },
+  buttonContainer: {
+    flex: 0.3,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  button: {
+    width: RFValue(250),
+    height: RFValue(50),
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    borderRadius: RFValue(30),
+    backgroundColor: "white",
+  },
+  googleIcon: {
+    width: RFValue(30),
+    height: RFValue(30),
+    resizeMode: "contain",
+  },
+  googleText: {
+    color: "black",
+    fontSize: RFValue(20),
+    fontFamily: "Bubblegum-Sans",
+  },
+  cloudContainer: {
+    flex: 0.3,
+  },
+  cloudImage: {
+    position: "absolute",
+    width: "100%",
+    resizeMode: "cover",
+    bottom: RFValue(-5),
   },
 });
