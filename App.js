@@ -2,7 +2,7 @@
 import * as React from "react";
 import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { SafeAreaView, StatusBar, StyleSheet } from "react-native";
-import * as firebase from "firebase";
+import firebase from "firebase";
 
 // Files Import
 import LoadingScreen from "./Screens/LoadingScreen";
@@ -25,7 +25,6 @@ const AppSwitchNavigator = createSwitchNavigator({
 const AppNavigator = createAppContainer(AppSwitchNavigator);
 
 export default function App() {
-
   return (
     <SafeAreaView style={styles.droidSafeAreaView}>
       <AppNavigator />
