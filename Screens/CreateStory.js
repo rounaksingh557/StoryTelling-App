@@ -1,21 +1,14 @@
+// Modules Import
 import React, { Component } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  Platform,
-  StatusBar,
-  Image,
-  ScrollView,
-  TextInput,
-  Dimensions,
-} from "react-native";
+import { View, StyleSheet, Image, ScrollView, TextInput } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 import DropDownPicker from "react-native-dropdown-picker";
-
 import AppLoading from "expo-app-loading";
 import * as Font from "expo-font";
+import firebase from "firebase";
+
+// Files Import
+import CustomText from "../Utility/CustomText";
 
 let customFonts = {
   "Bubblegum-Sans": require("../assets/fonts/BubblegumSans-Regular.ttf"),
@@ -28,6 +21,7 @@ export default class CreateStory extends Component {
       fontsLoaded: false,
       previewImage: "image_1",
       dropdownHeight: 40,
+      light_theme: true,
     };
   }
 
@@ -36,8 +30,22 @@ export default class CreateStory extends Component {
     this.setState({ fontsLoaded: true });
   }
 
+  async fetchUser() {
+    let theme;
+    await firebase
+      .database()
+      .ref("/users/" + firebase.auth().currentUser.uid)
+      .on("value", (snapshot) => {
+        theme = snapshot.val().current_theme;
+        this.setState({
+          light_theme: theme === "light" ? true : false,
+        });
+      });
+  }
+
   componentDidMount() {
     this._loadFontsAsync();
+    this.fetchUser();
   }
 
   render() {
@@ -52,8 +60,11 @@ export default class CreateStory extends Component {
         image_5: require("../assets/story_image_5.png"),
       };
       return (
-        <View style={styles.container}>
-          <SafeAreaView style={styles.droidSafeArea} />
+        <View
+          style={
+            this.state.light_theme ? styles.containerLight : styles.container
+          }
+        >
           <View style={styles.appTitle}>
             <View style={styles.appIcon}>
               <Image
@@ -62,7 +73,7 @@ export default class CreateStory extends Component {
               ></Image>
             </View>
             <View style={styles.appTitleTextContainer}>
-              <Text style={styles.appTitleText}>New Story</Text>
+              <CustomText design={styles.appTitleText} children={"New Story"} />
             </View>
           </View>
           <View style={styles.fieldsContainer}>
@@ -96,13 +107,17 @@ export default class CreateStory extends Component {
                   itemStyle={{
                     justifyContent: "flex-start",
                   }}
-                  dropDownStyle={{ backgroundColor: "#2f345d" }}
+                  dropDownStyle={
+                    this.state.light_theme
+                      ? { backgroundColor: "white" }
+                      : { backgroundColor: "#2f345d" }
+                  }
                   labelStyle={{
-                    color: "white",
+                    color: this.state.light_theme ? "black" : "white",
                     fontFamily: "Bubblegum-Sans",
                   }}
                   arrowStyle={{
-                    color: "white",
+                    color: this.state.light_theme ? "black" : "white",
                     fontFamily: "Bubblegum-Sans",
                   }}
                   onChangeItem={(item) =>
@@ -117,7 +132,9 @@ export default class CreateStory extends Component {
                 style={styles.inputFont}
                 onChangeText={(title) => this.setState({ title })}
                 placeholder={"Title"}
-                placeholderTextColor="white"
+                placeholderTextColor={
+                  this.state.light_theme ? "black" : "white"
+                }
               />
 
               <TextInput
@@ -130,7 +147,9 @@ export default class CreateStory extends Component {
                 placeholder={"Description"}
                 multiline={true}
                 numberOfLines={4}
-                placeholderTextColor="white"
+                placeholderTextColor={
+                  this.state.light_theme ? "black" : "white"
+                }
               />
               <TextInput
                 style={[
@@ -142,7 +161,9 @@ export default class CreateStory extends Component {
                 placeholder={"Story"}
                 multiline={true}
                 numberOfLines={20}
-                placeholderTextColor="white"
+                placeholderTextColor={
+                  this.state.light_theme ? "black" : "white"
+                }
               />
 
               <TextInput
@@ -155,7 +176,9 @@ export default class CreateStory extends Component {
                 placeholder={"Moral of the story"}
                 multiline={true}
                 numberOfLines={4}
-                placeholderTextColor="white"
+                placeholderTextColor={
+                  this.state.light_theme ? "black" : "white"
+                }
               />
             </ScrollView>
           </View>
@@ -171,9 +194,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#15193c",
   },
-  droidSafeArea: {
-    marginTop:
-      Platform.OS === "android" ? StatusBar.currentHeight : RFValue(35),
+  containerLight: {
+    flex: 1,
+    backgroundColor: "white",
   },
   appTitle: {
     flex: 0.07,

@@ -16,6 +16,10 @@ import { RFValue } from "react-native-responsive-fontsize";
 import * as Speech from "expo-speech";
 import AppLoading from "expo-app-loading";
 import * as Font from "expo-font";
+import firebase from "firebase";
+
+// Files Import
+import CustomText from "../Utility/CustomText";
 
 let customFonts = {
   "Bubblegum-Sans": require("../assets/fonts/BubblegumSans-Regular.ttf"),
@@ -28,6 +32,7 @@ export default class StoryScreen extends React.Component {
       fontsLoaded: false,
       speakerColor: "gray",
       speakerIcon: "volume-high-outline",
+      light_theme: true,
     };
   }
 
@@ -51,8 +56,22 @@ export default class StoryScreen extends React.Component {
     }
   }
 
+  fetchUser = async () => {
+    let theme;
+    await firebase
+      .database()
+      .ref("/users/" + firebase.auth().currentUser.uid)
+      .on("value", (snapshot) => {
+        theme = snapshot.val().current_theme;
+        this.setState({
+          light_theme: theme === "light" ? true : false,
+        });
+      });
+  };
+
   componentDidMount() {
     this._loadFontsAsync();
+    this.fetchUser();
   }
 
   render() {
@@ -62,7 +81,11 @@ export default class StoryScreen extends React.Component {
       return <AppLoading />;
     } else {
       return (
-        <View style={styles.container}>
+        <View
+          style={
+            this.state.light_theme ? styles.containerLight : styles.container
+          }
+        >
           <SafeAreaView style={styles.droidSafeArea} />
           <View style={styles.appTitle}>
             <View style={styles.appIcon}>
@@ -72,11 +95,20 @@ export default class StoryScreen extends React.Component {
               ></Image>
             </View>
             <View style={styles.appTitleTextContainer}>
-              <Text style={styles.appTitleText}>Storytelling App</Text>
+              <CustomText
+                design={styles.appTitleText}
+                children={"Storytelling App"}
+              />
             </View>
           </View>
           <View style={styles.storyContainer}>
-            <ScrollView style={styles.storyCard}>
+            <ScrollView
+              style={
+                this.state.light_theme
+                  ? styles.storyCardLight
+                  : styles.storyCard
+              }
+            >
               <Image
                 source={require("../assets/story_image_1.png")}
                 style={styles.image}
@@ -84,15 +116,18 @@ export default class StoryScreen extends React.Component {
 
               <View style={styles.dataContainer}>
                 <View style={styles.titleTextContainer}>
-                  <Text style={styles.storyTitleText}>
-                    {this.props.route.params.story.title}
-                  </Text>
-                  <Text style={styles.storyAuthorText}>
-                    {this.props.route.params.story.author}
-                  </Text>
-                  <Text style={styles.storyAuthorText}>
-                    {this.props.route.params.story.created_on}
-                  </Text>
+                  <CustomText
+                    design={styles.storyTitleText}
+                    children={this.props.route.params.story.title}
+                  />
+                  <CustomText
+                    design={styles.storyAuthorText}
+                    children={this.props.route.params.story.author}
+                  />
+                  <CustomText
+                    style={styles.storyAuthorText}
+                    children={this.props.route.params.story.created_on}
+                  />
                 </View>
                 <View style={styles.iconContainer}>
                   <TouchableOpacity
@@ -115,17 +150,20 @@ export default class StoryScreen extends React.Component {
                 </View>
               </View>
               <View style={styles.storyTextContainer}>
-                <Text style={styles.storyText}>
-                  {this.props.route.params.story.story}
-                </Text>
-                <Text style={styles.moralText}>
-                  Moral - {this.props.route.params.story.moral}
-                </Text>
+                <CustomText
+                  design={styles.storyText}
+                  children={this.props.route.params.story.story}
+                />
+                <CustomText
+                  style={styles.moralText}
+                  children={this.props.route.params.story.moral}
+                  firstText={"The moral of the story is -"}
+                />
               </View>
               <View style={styles.actionContainer}>
                 <View style={styles.likeButton}>
                   <Ionicons name={"heart"} size={RFValue(30)} color={"white"} />
-                  <Text style={styles.likeText}>12k</Text>
+                  <CustomText style={styles.likeText} children={"12k"} />
                 </View>
               </View>
             </ScrollView>
@@ -140,6 +178,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#15193c",
+  },
+  containerLight: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
   },
   droidSafeArea: {
     marginTop:
@@ -164,7 +206,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   appTitleText: {
-    color: "white",
     fontSize: RFValue(28),
     fontFamily: "Bubblegum-Sans",
   },
@@ -174,6 +215,11 @@ const styles = StyleSheet.create({
   storyCard: {
     margin: RFValue(20),
     backgroundColor: "#2f345d",
+    borderRadius: RFValue(20),
+  },
+  storyCardLight: {
+    margin: RFValue(20),
+    backgroundColor: "#f5f5f5",
     borderRadius: RFValue(20),
   },
   image: {
@@ -194,12 +240,10 @@ const styles = StyleSheet.create({
   storyTitleText: {
     fontFamily: "Bubblegum-Sans",
     fontSize: RFValue(25),
-    color: "white",
   },
   storyAuthorText: {
     fontFamily: "Bubblegum-Sans",
     fontSize: RFValue(18),
-    color: "white",
   },
   iconContainer: {
     flex: 0.2,
@@ -210,12 +254,10 @@ const styles = StyleSheet.create({
   storyText: {
     fontFamily: "Bubblegum-Sans",
     fontSize: RFValue(15),
-    color: "white",
   },
   moralText: {
     fontFamily: "Bubblegum-Sans",
     fontSize: RFValue(20),
-    color: "white",
   },
   actionContainer: {
     justifyContent: "center",
@@ -232,7 +274,6 @@ const styles = StyleSheet.create({
     borderRadius: RFValue(30),
   },
   likeText: {
-    color: "white",
     fontFamily: "Bubblegum-Sans",
     fontSize: RFValue(25),
     marginLeft: RFValue(5),

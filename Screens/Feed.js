@@ -1,21 +1,15 @@
 // Modules Import
 import React, { Component } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  Platform,
-  StatusBar,
-  Image,
-} from "react-native";
+import { View, StyleSheet, Image } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 import AppLoading from "expo-app-loading";
 import * as Font from "expo-font";
 import { FlatList } from "react-native-gesture-handler";
+import firebase from "firebase";
 
 // Files Import
 import StoryCard from "./StoryCard";
+import CustomText from "../Utility/CustomText";
 
 let customFonts = {
   "Bubblegum-Sans": require("../assets/fonts/BubblegumSans-Regular.ttf"),
@@ -28,6 +22,7 @@ export default class Feed extends Component {
     super(props);
     this.state = {
       fontsLoaded: false,
+      light_theme: true,
     };
   }
 
@@ -36,8 +31,22 @@ export default class Feed extends Component {
     this.setState({ fontsLoaded: true });
   }
 
+  async fetchUser() {
+    let theme;
+    await firebase
+      .database()
+      .ref("/users/" + firebase.auth().currentUser.uid)
+      .on("value", (snapshot) => {
+        theme = snapshot.val().current_theme;
+        this.setState({
+          light_theme: theme === "light" ? true : false,
+        });
+      });
+  }
+
   componentDidMount() {
     this._loadFontsAsync();
+    this.fetchUser();
   }
 
   renderItem = ({ item: story }) => {
@@ -51,8 +60,11 @@ export default class Feed extends Component {
       return <AppLoading />;
     } else {
       return (
-        <View style={styles.container}>
-          <SafeAreaView style={styles.droidSafeArea} />
+        <View
+          style={
+            this.state.light_theme ? styles.containerLight : styles.container
+          }
+        >
           <View style={styles.appTitle}>
             <View style={styles.appIcon}>
               <Image
@@ -61,7 +73,10 @@ export default class Feed extends Component {
               ></Image>
             </View>
             <View style={styles.appTitleTextContainer}>
-              <Text style={styles.appTitleText}>Storytelling App</Text>
+              <CustomText
+                design={styles.appTitleText}
+                children={"Storytelling App"}
+              />
             </View>
           </View>
           <View style={styles.cardContainer}>
@@ -82,9 +97,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#15193c",
   },
-  droidSafeArea: {
-    marginTop:
-      Platform.OS === "android" ? StatusBar.currentHeight : RFValue(35),
+  containerLight: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  containerLight: {
+    flex: 1,
+    backgroundColor: "#fff",
   },
   appTitle: {
     flex: 0.07,
@@ -105,7 +124,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   appTitleText: {
-    color: "white",
     fontSize: RFValue(28),
     fontFamily: "Bubblegum-Sans",
   },

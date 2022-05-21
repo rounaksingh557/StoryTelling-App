@@ -1,28 +1,60 @@
 // Modules Import
 import React from "react";
 import {
-  SafeAreaView,
   View,
-  Text,
   Image,
   Dimensions,
   StyleSheet,
-  StatusBar,
   TouchableOpacity,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import firebase from "firebase";
+
+// Files Import
+import CustomText from "../Utility/CustomText";
 
 export default class StoryCard extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      light_theme: true,
+    };
+  }
+
+  async fetchUser() {
+    let theme;
+    await firebase
+      .database()
+      .ref("/users/" + firebase.auth().currentUser.uid)
+      .on("value", (snapshot) => {
+        theme = snapshot.val().current_theme;
+        this.setState({
+          light_theme: theme === "light" ? true : false,
+        });
+      });
+  }
+
+  componentDidMount() {
+    this.fetchUser();
+  }
+
   render() {
     return (
       <TouchableOpacity
         onPress={() =>
-          this.props.navigation.navigate("StoryScreen", { story: this.props.story })
+          this.props.navigation.navigate("StoryScreen", {
+            story: this.props.story,
+          })
         }
       >
-        <View style={styles.container}>
-          <SafeAreaView style={styles.droidSafeArea} />
-          <View style={styles.cardContainer}>
+        <View>
+          <View
+            style={
+              this.state.light_theme
+                ? styles.cardContainerLight
+                : styles.cardContainer
+            }
+          >
             <View style={styles.storyImage}>
               <Image
                 source={require("../assets/story_image_1.png")}
@@ -37,21 +69,24 @@ export default class StoryCard extends React.Component {
             <View style={styles.titleContainer}>
               <View style={styles.titleTextContainer}>
                 <View style={styles.storyTitle}>
-                  <Text style={styles.storyTitleText}>
-                    {this.props.story.title}
-                  </Text>
+                  <CustomText
+                    design={styles.storyTitleText}
+                    children={this.props.story.title}
+                  />
                 </View>
                 <View style={styles.storyAuthor}>
-                  <Text style={styles.storyAuthorText}>
-                    {this.props.story.author}
-                  </Text>
+                  <CustomText
+                    design={styles.storyAuthorText}
+                    children={this.props.story.author}
+                  />
                 </View>
               </View>
             </View>
             <View style={styles.descriptionContainer}>
-              <Text style={styles.descriptionText}>
-                {this.props.story.description}
-              </Text>
+              <CustomText
+                design={styles.descriptionText}
+                children={this.props.story.description}
+              />
             </View>
             <View style={styles.actionContainer}>
               <View style={styles.likeButton}>
@@ -64,7 +99,7 @@ export default class StoryCard extends React.Component {
                   />
                 </View>
                 <View>
-                  <Text style={styles.likeText}>12k</Text>
+                  <CustomText design={styles.likeText} children={"12K"} />
                 </View>
               </View>
             </View>
@@ -76,9 +111,6 @@ export default class StoryCard extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  droidSafeArea: {
-    marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-  },
   cardContainer: {
     marginTop: -20,
     marginBottom: 20,
@@ -89,6 +121,19 @@ const styles = StyleSheet.create({
     height: undefined,
     padding: 10,
   },
+  cardContainerLight: {
+    marginTop: -20,
+    marginBottom: 20,
+    marginLeft: 20,
+    marginRight: 20,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 20,
+    height: undefined,
+    padding: 10,
+    margin: 10,
+    borderColor: "lightyellow",
+    borderWidth: 5,
+  },
   titleContainer: {
     flexDirection: "row",
   },
@@ -98,12 +143,10 @@ const styles = StyleSheet.create({
   storyTitleText: {
     fontFamily: "Bubblegum-Sans",
     fontSize: 25,
-    color: "white",
   },
   storyAuthorText: {
     fontFamily: "Bubblegum-Sans",
     fontSize: 18,
-    color: "white",
   },
   descriptionContainer: {
     marginTop: 5,
@@ -111,7 +154,6 @@ const styles = StyleSheet.create({
   descriptionText: {
     fontFamily: "Bubblegum-Sans",
     fontSize: 13,
-    color: "white",
   },
   actionContainer: {
     marginTop: 10,
@@ -126,7 +168,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   likeText: {
-    color: "white",
     fontFamily: "Bubblegum-Sans",
     fontSize: 25,
     marginLeft: 25,

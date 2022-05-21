@@ -36,14 +36,13 @@ export default class Profile extends React.Component {
         theme = snapshot.val().current_theme;
         name = `${snapshot.val().first_name} ${snapshot.val().last_name}`;
         image = snapshot.val().profile_picture;
+        this.setState({
+          light_theme: theme === "light" ? true : false,
+          isEnabled: theme === "light" ? false : true,
+          name: name,
+          profile_image: image,
+        });
       });
-
-    this.setState({
-      light_theme: theme === "light" ? true : false,
-      isEnabled: theme === "light" ? false : true,
-      name: name,
-      profile_image: image,
-    });
   }
 
   toggleSwitch() {
@@ -67,7 +66,11 @@ export default class Profile extends React.Component {
   render() {
     if (this.state.fontsLoaded) {
       return (
-        <View style={styles.container}>
+        <View
+          style={
+            this.state.light_theme ? styles.containerLight : styles.container
+          }
+        >
           <View style={styles.appTitle}>
             <View style={styles.appIcon}>
               <Image
@@ -76,7 +79,15 @@ export default class Profile extends React.Component {
               />
             </View>
             <View style={styles.appTitleTextContainer}>
-              <Text style={styles.appTitleText}>Story Telling App</Text>
+              <Text
+                style={
+                  this.state.light_theme
+                    ? styles.appTitleTextLight
+                    : styles.appTitleText
+                }
+              >
+                Story Telling App
+              </Text>
             </View>
           </View>
 
@@ -86,11 +97,27 @@ export default class Profile extends React.Component {
                 source={{ uri: this.state.profile_image }}
                 style={styles.profileImage}
               />
-              <Text style={styles.nameText}>{this.state.name}</Text>
+              <Text
+                style={
+                  this.state.light_theme
+                    ? styles.nameTextLight
+                    : styles.nameText
+                }
+              >
+                {this.state.name}
+              </Text>
             </View>
 
             <View style={styles.themeContainer}>
-              <Text style={styles.themeText}>Dark Theme</Text>
+              <Text
+                style={
+                  this.state.light_theme
+                    ? styles.themeTextLight
+                    : styles.themeText
+                }
+              >
+                Dark Theme
+              </Text>
               <Switch
                 style={{
                   transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }],
@@ -118,6 +145,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#15193c",
   },
+  containerLight: {
+    flex: 1,
+    backgroundColor: "#f4f3f4",
+  },
   appTitle: {
     flex: 0.1,
     flexDirection: "row",
@@ -134,6 +165,11 @@ const styles = StyleSheet.create({
   },
   appTitleText: {
     color: "white",
+    fontSize: RFValue(30),
+    fontFamily: "Bubblegum-Sans",
+  },
+  appTitleTextLight: {
+    color: "black",
     fontSize: RFValue(30),
     fontFamily: "Bubblegum-Sans",
   },
@@ -157,6 +193,12 @@ const styles = StyleSheet.create({
     fontFamily: "Bubblegum-Sans",
     marginTop: RFValue(15),
   },
+  nameTextLight: {
+    color: "black",
+    fontSize: RFValue(40),
+    fontFamily: "Bubblegum-Sans",
+    marginTop: RFValue(15),
+  },
   themeContainer: {
     flex: 0.1,
     flexDirection: "row",
@@ -166,6 +208,12 @@ const styles = StyleSheet.create({
   },
   themeText: {
     color: "white",
+    fontSize: RFValue(30),
+    fontFamily: "Bubblegum-Sans",
+    marginRight: RFValue(15),
+  },
+  themeTextLight: {
+    color: "black",
     fontSize: RFValue(30),
     fontFamily: "Bubblegum-Sans",
     marginRight: RFValue(15),
