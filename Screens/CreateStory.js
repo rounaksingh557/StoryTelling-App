@@ -1,6 +1,14 @@
 // Modules Import
-import React, { Component } from "react";
-import { View, StyleSheet, Image, ScrollView, TextInput } from "react-native";
+import React from "react";
+import {
+  View,
+  StyleSheet,
+  Image,
+  ScrollView,
+  TextInput,
+  Button,
+  Alert,
+} from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 import DropDownPicker from "react-native-dropdown-picker";
 import AppLoading from "expo-app-loading";
@@ -14,7 +22,7 @@ let customFonts = {
   "Bubblegum-Sans": require("../assets/fonts/BubblegumSans-Regular.ttf"),
 };
 
-export default class CreateStory extends Component {
+export default class CreateStory extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -22,6 +30,10 @@ export default class CreateStory extends Component {
       previewImage: "image_1",
       dropdownHeight: 40,
       light_theme: true,
+      title: "",
+      description: "",
+      story: "",
+      moral: "",
     };
   }
 
@@ -41,6 +53,38 @@ export default class CreateStory extends Component {
           light_theme: theme === "light" ? true : false,
         });
       });
+  }
+
+  async AddStory() {
+    if (
+      this.state.title &&
+      this.state.description &&
+      this.state.story &&
+      this.state.moral
+    ) {
+      let storyData = {
+        preview_images: this.state.previewImage,
+        title: this.state.title,
+        description: this.state.description,
+        story: this.state.story,
+        moral: this.state.moral,
+        author: firebase.auth().currentUser.displayName,
+        created_on: new Date(),
+        author_uid: firebase.auth().currentUser.uid,
+        likes: 0,
+      };
+      await firebase
+        .database()
+        .ref("/posts/" + Math.random().toString(36).slice(2))
+        .set(storyData)
+        .then(function (snapshot) {});
+      this.props.setUpdateToTrue();
+      this.props.navigation.navigate("Feed");
+    } else {
+      Alert.alert("Error: All fields are required", { cancelable: false }, [
+        { text: "OK", onPress: () => console.log("OK Pressed") },
+      ]);
+    }
   }
 
   componentDidMount() {
@@ -129,7 +173,11 @@ export default class CreateStory extends Component {
               </View>
 
               <TextInput
-                style={styles.inputFont}
+                style={
+                  this.state.light_theme
+                    ? styles.inputFontLight
+                    : styles.inputFont
+                }
                 onChangeText={(title) => this.setState({ title })}
                 placeholder={"Title"}
                 placeholderTextColor={
@@ -139,7 +187,9 @@ export default class CreateStory extends Component {
 
               <TextInput
                 style={[
-                  styles.inputFont,
+                  this.state.light_theme
+                    ? styles.inputFontLight
+                    : styles.inputFont,
                   styles.inputFontExtra,
                   styles.inputTextBig,
                 ]}
@@ -153,7 +203,9 @@ export default class CreateStory extends Component {
               />
               <TextInput
                 style={[
-                  styles.inputFont,
+                  this.state.light_theme
+                    ? styles.inputFontLight
+                    : styles.inputFont,
                   styles.inputFontExtra,
                   styles.inputTextBig,
                 ]}
@@ -168,7 +220,9 @@ export default class CreateStory extends Component {
 
               <TextInput
                 style={[
-                  styles.inputFont,
+                  this.state.light_theme
+                    ? styles.inputFontLight
+                    : styles.inputFont,
                   styles.inputFontExtra,
                   styles.inputTextBig,
                 ]}
@@ -180,6 +234,13 @@ export default class CreateStory extends Component {
                   this.state.light_theme ? "black" : "white"
                 }
               />
+              <View style={styles.submitButton}>
+                <Button
+                  onPress={() => this.AddStory()}
+                  title="Submit"
+                  color={"#841584"}
+                />
+              </View>
             </ScrollView>
           </View>
           <View style={{ flex: 0.08 }} />
@@ -241,11 +302,25 @@ const styles = StyleSheet.create({
     color: "white",
     fontFamily: "Bubblegum-Sans",
   },
+  inputFontLight: {
+    height: RFValue(40),
+    borderColor: "black",
+    borderWidth: RFValue(1),
+    borderRadius: RFValue(10),
+    paddingLeft: RFValue(10),
+    color: "black",
+    fontFamily: "Bubblegum-Sans",
+  },
   inputFontExtra: {
     marginTop: RFValue(15),
   },
   inputTextBig: {
     textAlignVertical: "top",
     padding: RFValue(5),
+  },
+  submitButton: {
+    marginTop: RFValue(20),
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

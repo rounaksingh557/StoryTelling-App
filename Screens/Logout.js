@@ -1,9 +1,9 @@
 // Modules Import
-import React, { Component } from "react";
+import React from "react";
 import { View, Text } from "react-native";
 import firebase from "firebase";
 
-export default class Logout extends Component {
+export default class Logout extends React.Component {
   componentDidMount() {
     firebase.auth().signOut();
   }

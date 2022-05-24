@@ -14,6 +14,7 @@ const Tab = createMaterialBottomTabNavigator();
 
 const TabNavigation = () => {
   const [theme, setTheme] = React.useState("");
+  const [isUpdated, setIsUpdated] = React.useState(false);
 
   async function fetchUser() {
     let theme;
@@ -26,7 +27,32 @@ const TabNavigation = () => {
       });
   }
 
-  React.useEffect(() => fetchUser(), []);
+  const renderFeed = (props) => {
+    return <Feed setUpdateToFalse={removeUpdated()} {...props} />;
+  };
+
+  const renderStory = (props) => {
+    return <CreateStory setUpdateToTrue={changeUpdated()} {...props} />;
+  };
+
+  function changeUpdated() {
+    setIsUpdated(true);
+  }
+
+  function removeUpdated() {
+    setIsUpdated(false);
+  }
+
+  React.useEffect(() => {
+    let theme;
+    firebase
+      .database()
+      .ref("/users/" + firebase.auth().currentUser.uid)
+      .on("value", function (snapshot) {
+        theme = snapshot.val().current_theme;
+        setTheme(theme === "light" ? true : false);
+      });
+  }, []);
 
   return (
     <Tab.Navigator
@@ -57,8 +83,16 @@ const TabNavigation = () => {
         inactiveTintColor: "gray",
       }}
     >
-      <Tab.Screen name="Feed" component={Feed} />
-      <Tab.Screen name="CreateStory" component={CreateStory} />
+      <Tab.Screen
+        name="Feed"
+        component={renderFeed()}
+        options={{ unmountOnBlur: true }}
+      />
+      <Tab.Screen
+        name="CreateStory"
+        component={renderStory()}
+        options={{ unmountOnBlur: true }}
+      />
     </Tab.Navigator>
   );
 };
@@ -67,7 +101,7 @@ export default TabNavigation;
 
 const styles = StyleSheet.create({
   bottomTabStyle: {
-    backgroundColor: "purple",
+    backgroundColor: "#2f345d",
     height: "8%",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
@@ -75,7 +109,7 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   bottomTabStyleLight: {
-    backgroundColor: "lightyellow",
+    backgroundColor: "#eaeaea",
     height: "8%",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,

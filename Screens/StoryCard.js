@@ -18,6 +18,8 @@ export default class StoryCard extends React.Component {
     super(props);
     this.state = {
       light_theme: true,
+      story_id: this.props.story.key,
+      story_data: this.props.story.value,
     };
   }
 
@@ -39,6 +41,14 @@ export default class StoryCard extends React.Component {
   }
 
   render() {
+    let story = this.state.story_data;
+    let images = {
+      image_1: require("../assets/story_image_1.png"),
+      image_2: require("../assets/story_image_2.png"),
+      image_3: require("../assets/story_image_3.png"),
+      image_4: require("../assets/story_image_4.png"),
+      image_5: require("../assets/story_image_5.png"),
+    };
     return (
       <TouchableOpacity
         onPress={() =>
@@ -57,7 +67,7 @@ export default class StoryCard extends React.Component {
           >
             <View style={styles.storyImage}>
               <Image
-                source={require("../assets/story_image_1.png")}
+                source={images[story.preview_image]}
                 style={{
                   resizeMode: "contain",
                   width: Dimensions.get("window").width - 60,
@@ -68,18 +78,14 @@ export default class StoryCard extends React.Component {
             </View>
             <View style={styles.titleContainer}>
               <View style={styles.titleTextContainer}>
-                <View style={styles.storyTitle}>
-                  <CustomText
-                    design={styles.storyTitleText}
-                    children={this.props.story.title}
-                  />
-                </View>
-                <View style={styles.storyAuthor}>
-                  <CustomText
-                    design={styles.storyAuthorText}
-                    children={this.props.story.author}
-                  />
-                </View>
+                <CustomText
+                  design={styles.storyTitleText}
+                  children={story.title}
+                />
+                <CustomText
+                  design={styles.storyAuthorText}
+                  children={story.author}
+                />
               </View>
             </View>
             <View style={styles.descriptionContainer}>

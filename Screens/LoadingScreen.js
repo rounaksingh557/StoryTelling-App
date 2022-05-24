@@ -1,9 +1,9 @@
 // Modules Import
-import React, { Component } from "react";
+import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import firebase from "firebase";
 
-export default class LoadingScreen extends Component {
+export default class LoadingScreen extends React.Component {
   componentDidMount() {
     this.checkIfLoggedIn();
   }

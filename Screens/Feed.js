@@ -1,5 +1,5 @@
 // Modules Import
-import React, { Component } from "react";
+import React from "react";
 import { View, StyleSheet, Image } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 import AppLoading from "expo-app-loading";
@@ -17,12 +17,13 @@ let customFonts = {
 
 let stories = require("./temp_stories.json");
 
-export default class Feed extends Component {
+export default class Feed extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       fontsLoaded: false,
       light_theme: true,
+      stories: [],
     };
   }
 
@@ -44,9 +45,37 @@ export default class Feed extends Component {
       });
   }
 
+  fetchStories = () => {
+    firebase
+      .database()
+      .ref("/posts/")
+      .on(
+        "value",
+        (snapshot) => {
+          let stories = [];
+          if (snapshot.val()) {
+            Object.keys(snapshot.val()).forEach((key) => {
+              stories.push({
+                key: key,
+                value: snapshot.val()[key],
+              });
+            });
+          }
+          this.setState({
+            stories: stories,
+          });
+          this.props.setUpdateToFalse();
+        },
+        function (errorObject) {
+          console.log("The read failed: " + errorObject.code);
+        }
+      );
+  };
+
   componentDidMount() {
     this._loadFontsAsync();
     this.fetchUser();
+    this.fetchStories();
   }
 
   renderItem = ({ item: story }) => {
@@ -79,13 +108,19 @@ export default class Feed extends Component {
               />
             </View>
           </View>
-          <View style={styles.cardContainer}>
-            <FlatList
-              keyExtractor={this.keyExtractor}
-              data={stories}
-              renderItem={this.renderItem}
-            />
-          </View>
+          {!this.state.stories[0] ? (
+            <View style={styles.noStoriesContainer}>
+              <CustomText children={"No Stories"} />
+            </View>
+          ) : (
+            <View style={styles.cardContainer}>
+              <FlatList
+                keyExtractor={this.keyExtractor}
+                data={stories}
+                renderItem={this.renderItem}
+              />
+            </View>
+          )}
         </View>
       );
     }
@@ -129,5 +164,10 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     flex: 0.93,
+  },
+  noStoriesContainer: {
+    flex: 0.93,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
