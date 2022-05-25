@@ -54,16 +54,14 @@ export default class Feed extends React.Component {
         (snapshot) => {
           let stories = [];
           if (snapshot.val()) {
-            Object.keys(snapshot.val()).forEach((key) => {
+            Object.keys(snapshot.val()).forEach(function (key) {
               stories.push({
                 key: key,
                 value: snapshot.val()[key],
               });
             });
           }
-          this.setState({
-            stories: stories,
-          });
+          this.setState({ stories: stories });
           this.props.setUpdateToFalse();
         },
         function (errorObject) {
@@ -116,7 +114,7 @@ export default class Feed extends React.Component {
             <View style={styles.cardContainer}>
               <FlatList
                 keyExtractor={this.keyExtractor}
-                data={stories}
+                data={this.state.stories}
                 renderItem={this.renderItem}
               />
             </View>

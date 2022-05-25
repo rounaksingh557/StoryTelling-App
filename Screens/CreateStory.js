@@ -6,8 +6,8 @@ import {
   Image,
   ScrollView,
   TextInput,
-  Button,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -235,11 +235,16 @@ export default class CreateStory extends React.Component {
                 }
               />
               <View style={styles.submitButton}>
-                <Button
+                <TouchableOpacity
                   onPress={() => this.AddStory()}
-                  title="Submit"
-                  color={"#841584"}
-                />
+                  style={
+                    this.state.light_theme
+                      ? styles.mainButtonLight
+                      : styles.mainButton
+                  }
+                >
+                  <CustomText children={"Submit"} />
+                </TouchableOpacity>
               </View>
             </ScrollView>
           </View>
@@ -320,6 +325,22 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: RFValue(20),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  mainButton: {
+    width: "90%",
+    backgroundColor: "#841584",
+    borderRadius: RFValue(10),
+    paddingVertical: RFValue(10),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  mainButtonLight: {
+    width: "90%",
+    backgroundColor: "gray",
+    borderRadius: RFValue(10),
+    paddingVertical: RFValue(10),
     alignItems: "center",
     justifyContent: "center",
   },

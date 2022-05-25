@@ -28,31 +28,22 @@ const TabNavigation = () => {
   }
 
   const renderFeed = (props) => {
-    return <Feed setUpdateToFalse={removeUpdated()} {...props} />;
+    return <Feed setUpdateToFalse={removeUpdated} {...props} />;
   };
 
   const renderStory = (props) => {
-    return <CreateStory setUpdateToTrue={changeUpdated()} {...props} />;
+    return <CreateStory setUpdateToTrue={changeUpdated} {...props} />;
   };
 
-  function changeUpdated() {
+  const changeUpdated = () => {
     setIsUpdated(true);
-  }
+  };
 
-  function removeUpdated() {
+  const removeUpdated = () => {
     setIsUpdated(false);
-  }
+  };
 
-  React.useEffect(() => {
-    let theme;
-    firebase
-      .database()
-      .ref("/users/" + firebase.auth().currentUser.uid)
-      .on("value", function (snapshot) {
-        theme = snapshot.val().current_theme;
-        setTheme(theme === "light" ? true : false);
-      });
-  }, []);
+  React.useEffect(() => fetchUser(), []);
 
   return (
     <Tab.Navigator
@@ -85,12 +76,12 @@ const TabNavigation = () => {
     >
       <Tab.Screen
         name="Feed"
-        component={renderFeed()}
+        component={renderFeed}
         options={{ unmountOnBlur: true }}
       />
       <Tab.Screen
         name="CreateStory"
-        component={renderStory()}
+        component={renderStory}
         options={{ unmountOnBlur: true }}
       />
     </Tab.Navigator>

@@ -2,11 +2,7 @@
 import React from "react";
 import {
   View,
-  Text,
   StyleSheet,
-  SafeAreaView,
-  Platform,
-  StatusBar,
   Image,
   ScrollView,
   TouchableOpacity,
@@ -75,6 +71,13 @@ export default class StoryScreen extends React.Component {
   }
 
   render() {
+    let images = {
+      image_1: require("../assets/story_image_1.png"),
+      image_2: require("../assets/story_image_2.png"),
+      image_3: require("../assets/story_image_3.png"),
+      image_4: require("../assets/story_image_4.png"),
+      image_5: require("../assets/story_image_5.png"),
+    };
     if (!this.props.route.params) {
       this.props.navigation.navigate("Home");
     } else if (!this.state.fontsLoaded) {
@@ -86,13 +89,12 @@ export default class StoryScreen extends React.Component {
             this.state.light_theme ? styles.containerLight : styles.container
           }
         >
-          <SafeAreaView style={styles.droidSafeArea} />
           <View style={styles.appTitle}>
             <View style={styles.appIcon}>
               <Image
                 source={require("../assets/logo.png")}
                 style={styles.iconImage}
-              ></Image>
+              />
             </View>
             <View style={styles.appTitleTextContainer}>
               <CustomText
@@ -110,7 +112,7 @@ export default class StoryScreen extends React.Component {
               }
             >
               <Image
-                source={require("../assets/story_image_1.png")}
+                source={images[this.props.route.params.story.preview_images]}
                 style={styles.image}
               ></Image>
 
@@ -182,10 +184,6 @@ const styles = StyleSheet.create({
   containerLight: {
     flex: 1,
     backgroundColor: "#f5f5f5",
-  },
-  droidSafeArea: {
-    marginTop:
-      Platform.OS === "android" ? StatusBar.currentHeight : RFValue(35),
   },
   appTitle: {
     flex: 0.07,

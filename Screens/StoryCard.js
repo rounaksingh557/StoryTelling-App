@@ -53,7 +53,7 @@ export default class StoryCard extends React.Component {
       <TouchableOpacity
         onPress={() =>
           this.props.navigation.navigate("StoryScreen", {
-            story: this.props.story,
+            story: story,
           })
         }
       >
@@ -67,7 +67,7 @@ export default class StoryCard extends React.Component {
           >
             <View style={styles.storyImage}>
               <Image
-                source={images[story.preview_image]}
+                source={images[story.preview_images]}
                 style={{
                   resizeMode: "contain",
                   width: Dimensions.get("window").width - 60,
@@ -91,7 +91,7 @@ export default class StoryCard extends React.Component {
             <View style={styles.descriptionContainer}>
               <CustomText
                 design={styles.descriptionText}
-                children={this.props.story.description}
+                children={story.description}
               />
             </View>
             <View style={styles.actionContainer}>
