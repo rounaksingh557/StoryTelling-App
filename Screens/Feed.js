@@ -24,6 +24,7 @@ export default class Feed extends React.Component {
       fontsLoaded: false,
       light_theme: true,
       stories: [],
+      refreshing: false,
     };
   }
 

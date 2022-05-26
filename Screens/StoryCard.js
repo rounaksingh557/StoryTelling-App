@@ -20,6 +20,8 @@ export default class StoryCard extends React.Component {
       light_theme: true,
       story_id: this.props.story.key,
       story_data: this.props.story.value,
+      is_liked: false,
+      likes: this.props.story.value.likes,
     };
   }
 
@@ -36,12 +38,37 @@ export default class StoryCard extends React.Component {
       });
   }
 
+  likeActive = () => {
+    if (this.state.is_liked) {
+      firebase
+        .database()
+        .ref("posts")
+        .child(this.state.story_id)
+        .child("likes")
+        .set(firebase.database.ServerValue.increment(-1))
+        .then(() => {
+          this.setState({ likes: this.state.likes - 1, is_liked: false });
+        });
+    } else {
+      firebase
+        .database()
+        .ref("posts")
+        .child(this.state.story_id)
+        .child("likes")
+        .set(firebase.database.ServerValue.increment(1))
+        .then(() => {
+          this.setState({ likes: this.state.likes + 1, is_liked: true });
+        });
+    }
+  };
+
   componentDidMount() {
     this.fetchUser();
   }
 
   render() {
     let story = this.state.story_data;
+    let id = this.state.story_id;
     let images = {
       image_1: require("../assets/story_image_1.png"),
       image_2: require("../assets/story_image_2.png"),
@@ -54,6 +81,7 @@ export default class StoryCard extends React.Component {
         onPress={() =>
           this.props.navigation.navigate("StoryScreen", {
             story: story,
+            id: id,
           })
         }
       >
@@ -95,19 +123,30 @@ export default class StoryCard extends React.Component {
               />
             </View>
             <View style={styles.actionContainer}>
-              <View style={styles.likeButton}>
-                <View style={styles.likeIcon}>
-                  <Ionicons
-                    name={"heart"}
-                    size={30}
-                    color={"white"}
-                    style={{ width: 30, marginLeft: 20, marginTop: 5 }}
-                  />
+              <TouchableOpacity onPress={() => this.likeActive()}>
+                <View
+                  style={
+                    this.state.is_liked
+                      ? styles.likeButtonLiked
+                      : styles.likeButton
+                  }
+                >
+                  <View style={styles.likeIcon}>
+                    <Ionicons
+                      name={"heart"}
+                      size={30}
+                      color={"white"}
+                      style={{ width: 30, marginLeft: 20, marginTop: 5 }}
+                    />
+                  </View>
+                  <View>
+                    <CustomText
+                      design={styles.likeText}
+                      children={this.state.likes}
+                    />
+                  </View>
                 </View>
-                <View>
-                  <CustomText design={styles.likeText} children={"12K"} />
-                </View>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -166,7 +205,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  likeButton: {
+  likeButtonLiked: {
     backgroundColor: "#eb3948",
     borderRadius: 30,
     width: 160,
@@ -178,5 +217,13 @@ const styles = StyleSheet.create({
     fontSize: 25,
     marginLeft: 25,
     marginTop: 6,
+  },
+  likeButton: {
+    backgroundColor: "#eb3948",
+    borderRadius: 30,
+    width: 160,
+    height: 40,
+    flexDirection: "row",
+    borderWidth: 2,
   },
 });
