@@ -29,8 +29,8 @@ export default class StoryScreen extends React.Component {
       speakerColor: "gray",
       speakerIcon: "volume-high-outline",
       light_theme: true,
-      likes: this.props.route.params.story.likes,
-      is_liked: false,
+      likes: this.props.route.params.likes,
+      is_liked: this.props.route.params.is_liked,
       refreshing: false,
     };
   }
@@ -68,6 +68,18 @@ export default class StoryScreen extends React.Component {
       });
   };
 
+  fetchStories = () => {
+    firebase
+      .database()
+      .ref("/posts/" + this.props.route.params.id)
+      .on("value", (snapshot) => {
+        this.setState({
+          is_liked: snapshot.val().is_liked,
+          likes: snapshot.val().likes,
+        });
+      });
+  };
+
   likeActive = () => {
     if (this.state.is_liked) {
       firebase
@@ -77,11 +89,16 @@ export default class StoryScreen extends React.Component {
         .child("likes")
         .set(firebase.database.ServerValue.increment(-1))
         .then(() => {
-          this.setState({
-            likes: (this.state.likes -= 1),
-            is_liked: false,
-          });
+          let likes = (this.state.likes -= 1);
+          this.props.route.params.story.likes = likes;
+          this.props.route.params.likes = likes;
         });
+      firebase
+        .database()
+        .ref("posts")
+        .child(this.props.route.params.id)
+        .child("is_liked")
+        .set(false);
     } else {
       firebase
         .database()
@@ -90,17 +107,23 @@ export default class StoryScreen extends React.Component {
         .child("likes")
         .set(firebase.database.ServerValue.increment(1))
         .then(() => {
-          this.setState({
-            likes: (this.state.likes += 1),
-            is_liked: true,
-          });
+          let likes = (this.state.likes += 1);
+          this.props.route.params.story.likes = likes;
+          this.props.route.params.likes = likes;
         });
+      firebase
+        .database()
+        .ref("posts")
+        .child(this.props.route.params.id)
+        .child("is_liked")
+        .set(true);
     }
   };
 
   componentDidMount() {
     this._loadFontsAsync();
     this.fetchUser();
+    this.fetchStories();
   }
 
   render() {

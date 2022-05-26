@@ -20,8 +20,8 @@ export default class StoryCard extends React.Component {
       light_theme: true,
       story_id: this.props.story.key,
       story_data: this.props.story.value,
-      is_liked: false,
-      likes: this.props.story.value.likes,
+      is_liked: this.props.story.value.is_liked,
+      likes: 0,
     };
   }
 
@@ -45,30 +45,51 @@ export default class StoryCard extends React.Component {
         .ref("posts")
         .child(this.state.story_id)
         .child("likes")
-        .set(firebase.database.ServerValue.increment(-1))
-        .then(() => {
-          this.setState({ likes: this.state.likes - 1, is_liked: false });
-        });
+        .set(firebase.database.ServerValue.increment(-1));
+      firebase
+        .database()
+        .ref("posts")
+        .child(this.state.story_id)
+        .child("is_liked")
+        .set(false);
     } else {
       firebase
         .database()
         .ref("posts")
         .child(this.state.story_id)
         .child("likes")
-        .set(firebase.database.ServerValue.increment(1))
-        .then(() => {
-          this.setState({ likes: this.state.likes + 1, is_liked: true });
-        });
+        .set(firebase.database.ServerValue.increment(1));
+      firebase
+        .database()
+        .ref("posts")
+        .child(this.state.story_id)
+        .child("is_liked")
+        .set(true);
     }
+  };
+
+  fetchStories = () => {
+    firebase
+      .database()
+      .ref("/posts/" + this.state.story_id)
+      .on("value", (snapshot) => {
+        this.setState({
+          is_liked: snapshot.val().is_liked,
+          likes: snapshot.val().likes,
+        });
+      });
   };
 
   componentDidMount() {
     this.fetchUser();
+    this.fetchStories();
   }
 
   render() {
     let story = this.state.story_data;
     let id = this.state.story_id;
+    let likes = this.state.likes;
+    let is_liked = this.state.is_liked;
     let images = {
       image_1: require("../assets/story_image_1.png"),
       image_2: require("../assets/story_image_2.png"),
@@ -82,6 +103,8 @@ export default class StoryCard extends React.Component {
           this.props.navigation.navigate("StoryScreen", {
             story: story,
             id: id,
+            likes: likes,
+            is_liked: is_liked,
           })
         }
       >
