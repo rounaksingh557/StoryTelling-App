@@ -72,6 +72,7 @@ export default class CreateStory extends React.Component {
         created_on: new Date(),
         author_uid: firebase.auth().currentUser.uid,
         likes: 0,
+        is_liked: false,
       };
       await firebase
         .database()
